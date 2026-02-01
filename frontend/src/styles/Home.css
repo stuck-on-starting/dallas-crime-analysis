@@ -1,0 +1,88 @@
+.home {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 60px 40px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.home-header h1 {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.home-header p {
+  font-size: 1.3rem;
+  opacity: 0.9;
+}
+
+.visualization-menu {
+  flex: 1;
+  margin-bottom: 40px;
+}
+
+.visualization-menu h2 {
+  text-align: center;
+  color: #333;
+  font-size: 2rem;
+  margin-bottom: 40px;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  padding: 20px 0;
+}
+
+.menu-card {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.menu-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  border-color: #667eea;
+}
+
+.menu-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.menu-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #667eea;
+}
+
+.menu-card p {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.home-footer {
+  text-align: center;
+  padding: 30px;
+  color: #666;
+  border-top: 1px solid #e0e0e0;
+}

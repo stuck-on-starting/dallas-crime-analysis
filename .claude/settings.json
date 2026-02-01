@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npx tsx *)",
+      "Bash(curl *)",
+      "Bash(pgrep *)",
+      "Bash(pkill *)",
+      "Bash(nohup *)",
+      "Bash(sleep *)",
+      "Bash(tail *)",
+      "Bash(mkdir *)",
+      "Bash(cd /home/sjarvis/dallas-crime-analysis*)"
+    ]
+  }
+}

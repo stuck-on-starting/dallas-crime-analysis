@@ -1,0 +1,43 @@
+{
+  "name": "dallas-crime-analysis",
+  "version": "1.0.0",
+  "description": "Dallas Crime Data Analysis System - Geographic categorization and visualization",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/api/server.ts",
+    "start": "node dist/api/server.js",
+    "script:setup-database": "tsx src/scripts/01-setup-database.ts",
+    "script:fetch-boundaries": "tsx src/scripts/02-import-official-boundary.ts",
+    "script:generate-buffer": "tsx src/scripts/03-generate-buffer.ts",
+    "script:fetch-incidents": "tsx src/scripts/04-fetch-incidents.ts",
+    "script:fetch-by-year": "tsx src/scripts/04-fetch-incidents-by-year.ts",
+    "script:categorize-all": "tsx src/scripts/05-categorize-all.ts",
+    "script:validate": "tsx src/scripts/06-validate.ts",
+    "update:incremental": "tsx src/scripts/update-incremental.ts",
+    "cache:refresh": "tsx src/scripts/cache-stats.ts",
+    "api:start": "tsx src/api/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@turf/bbox": "^7.3.2",
+    "@turf/boolean-point-in-polygon": "^7.3.2",
+    "@turf/buffer": "^7.3.2",
+    "@turf/helpers": "^7.3.2",
+    "@turf/turf": "^7.3.2",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.0.10",
+    "axios": "^1.13.3",
+    "better-sqlite3": "^12.6.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "winston": "^3.19.0"
+  }
+}

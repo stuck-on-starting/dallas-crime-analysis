@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment variables
+.env
+
+# Build output
+dist/
+*.js
+*.js.map
+
+# Database
+database/*.db
+database/*.db-journal
+database/*.db-shm
+database/*.db-wal
+
+# Data files
+data/boundaries/*.geojson
+data/validation/*
+
+# Logs
+logs/*.log
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+tmp/
