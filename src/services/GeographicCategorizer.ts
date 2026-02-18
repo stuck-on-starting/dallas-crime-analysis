@@ -11,6 +11,7 @@ export class GeographicCategorizer {
   private bufferBoundary: ParsedBoundary | null = null;
   private districtBBox: number[] | null = null;
   private bufferBBox: number[] | null = null;
+  private combinedBBox: number[] | null = null;
   private isInitialized: boolean = false;
 
   /**
@@ -32,15 +33,23 @@ export class GeographicCategorizer {
         throw new Error('Buffer boundary not found. Run script:generate-buffer first.');
       }
 
-      // Calculate bounding boxes for fast filtering
+      // Calculate bounding boxes for fast filtering.
+      // combinedBBox covers both polygons so that points in either district
+      // or the adjacent border district pass the fast-reject check.
       this.districtBBox = turf.bbox(this.districtBoundary.feature);
       this.bufferBBox = turf.bbox(this.bufferBoundary.feature);
+      this.combinedBBox = [
+        Math.min(this.districtBBox[0], this.bufferBBox[0]), // minLng
+        Math.min(this.districtBBox[1], this.bufferBBox[1]), // minLat
+        Math.max(this.districtBBox[2], this.bufferBBox[2]), // maxLng
+        Math.max(this.districtBBox[3], this.bufferBBox[3]), // maxLat
+      ];
 
       this.isInitialized = true;
 
       logger.info('✓ Geographic Categorizer initialized');
       logger.info(`  District: ${this.districtBoundary.name}`);
-      logger.info(`  Buffer: ${this.bufferBoundary.name}`);
+      logger.info(`  Border: ${this.bufferBoundary.name}`);
     } catch (error) {
       logger.error('Failed to initialize Geographic Categorizer:', error);
       throw error;
@@ -70,8 +79,9 @@ export class GeographicCategorizer {
     const pt = point([longitude, latitude]);
 
     // TIER 1: Bounding box check (fastest - eliminates ~95% of points)
-    // Check if point is even within the buffer's bounding box
-    if (!this.isInBoundingBox(pt.geometry.coordinates, this.bufferBBox!)) {
+    // Use the combined bbox of both polygons so points in either the district
+    // or the adjacent border district are not fast-rejected.
+    if (!this.isInBoundingBox(pt.geometry.coordinates, this.combinedBBox!)) {
       return 'outside';
     }
 
