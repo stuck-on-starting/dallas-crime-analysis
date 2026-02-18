@@ -10,6 +10,7 @@
     "script:setup-database": "tsx src/scripts/01-setup-database.ts",
     "script:fetch-boundaries": "tsx src/scripts/02-import-official-boundary.ts",
     "script:generate-buffer": "tsx src/scripts/03-generate-buffer.ts",
+    "script:import-manual-border": "tsx src/scripts/03-import-manual-border.ts",
     "script:fetch-incidents": "tsx src/scripts/04-fetch-incidents.ts",
     "script:fetch-by-year": "tsx src/scripts/04-fetch-incidents-by-year.ts",
     "script:categorize-all": "tsx src/scripts/05-categorize-all.ts",
