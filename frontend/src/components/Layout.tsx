@@ -10,7 +10,6 @@ const navItems = [
   { to: '/map', label: 'Crime Map' },
   { to: '/boundaries', label: 'Boundaries' },
   { to: '/records', label: 'Records' },
-  { to: '/time-series', label: 'Time Series' },
   { to: '/yearly', label: 'Yearly' },
   { to: '/nibrs', label: 'NIBRS Filter' },
 ];

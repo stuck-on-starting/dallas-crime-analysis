@@ -27,12 +27,6 @@ const menuItems = [
     description: 'Browse paginated crime records with filtering and search',
   },
   {
-    to: '/time-series',
-    icon: '📈',
-    title: 'Time Series',
-    description: 'View crime trends over time with monthly/yearly grouping',
-  },
-  {
     to: '/yearly',
     icon: '📊',
     title: 'Yearly Comparison',
