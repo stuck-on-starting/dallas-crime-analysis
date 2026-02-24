@@ -16,6 +16,7 @@
     "script:categorize-all": "tsx src/scripts/05-categorize-all.ts",
     "script:validate": "tsx src/scripts/06-validate.ts",
     "update:incremental": "tsx src/scripts/update-incremental.ts",
+    "script:count-homes": "tsx src/scripts/count-homes.ts",
     "cache:refresh": "tsx src/scripts/cache-stats.ts",
     "api:start": "tsx src/api/server.ts"
   },
