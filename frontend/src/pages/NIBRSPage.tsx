@@ -1,19 +1,17 @@
-import { Link } from 'react-router-dom';
 import { NIBRSFilterChart } from '../components/NIBRSFilterChart';
-import '../styles/Pages.css';
 
 export function NIBRSPage() {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <Link to="/" className="back-link">← Back to Home</Link>
-        <h1>Crime Type Filter</h1>
-        <p>Filter and analyze by specific NIBRS crime categories</p>
+    <div className="flex flex-col gap-4">
+      <div>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>Crime Type Filter</h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--muted-foreground)' }}>
+          Filter and analyze by specific NIBRS crime categories
+        </p>
       </div>
-
-      <section className="visualization-section">
+      <div className="bg-card rounded-lg shadow-sm p-4">
         <NIBRSFilterChart groupBy="month" />
-      </section>
+      </div>
     </div>
   );
 }

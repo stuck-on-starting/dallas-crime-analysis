@@ -1,19 +1,15 @@
-import { Link } from 'react-router-dom';
 import { TimeSeriesChart } from '../components/TimeSeriesChart';
-import '../styles/Pages.css';
 
 export function TimeSeriesPage() {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <Link to="/" className="back-link">← Back to Home</Link>
-        <h1>Time Series Analysis</h1>
-        <p>View crime trends over time</p>
+    <div className="flex flex-col gap-4">
+      <div>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>Time Series Analysis</h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--muted-foreground)' }}>View crime trends over time</p>
       </div>
-
-      <section className="visualization-section">
+      <div className="bg-card rounded-lg shadow-sm p-4">
         <TimeSeriesChart groupBy="month" />
-      </section>
+      </div>
     </div>
   );
 }

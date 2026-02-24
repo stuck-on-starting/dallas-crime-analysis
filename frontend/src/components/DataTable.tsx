@@ -1,5 +1,15 @@
 import type { IncidentRecord } from '../api/client';
-import '../styles/DataTable.css';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface DataTableProps {
   records: IncidentRecord[];
@@ -8,6 +18,12 @@ interface DataTableProps {
   total: number;
   onPageChange: (page: number) => void;
 }
+
+const categoryClasses: Record<string, string> = {
+  inside: 'bg-purple-500 hover:bg-purple-500 text-white',
+  bordering: 'bg-green-500 hover:bg-green-500 text-white',
+  outside: 'bg-orange-400 hover:bg-orange-400 text-white',
+};
 
 export function DataTable({
   records,
@@ -25,131 +41,110 @@ export function DataTable({
     }
   };
 
-  const getCategoryBadge = (category: string) => {
-    const colors: { [key: string]: string } = {
-      inside: '#8884d8',
-      bordering: '#82ca9d',
-      outside: '#ffc658',
-    };
-    return (
-      <span
-        className="category-badge"
-        style={{ backgroundColor: colors[category] || '#999' }}
-      >
-        {category}
-      </span>
-    );
-  };
-
   const renderPagination = () => {
     const pages: (number | string)[] = [];
     const maxVisible = 7;
 
     if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       pages.push(1);
-
-      if (currentPage > 3) {
-        pages.push('...');
-      }
-
+      if (currentPage > 3) pages.push('...');
       const start = Math.max(2, currentPage - 1);
       const end = Math.min(totalPages - 1, currentPage + 1);
-
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
-
-      if (currentPage < totalPages - 2) {
-        pages.push('...');
-      }
-
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (currentPage < totalPages - 2) pages.push('...');
       pages.push(totalPages);
     }
 
     return (
-      <div className="pagination">
-        <button
+      <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="page-btn"
         >
           Previous
-        </button>
+        </Button>
 
         {pages.map((page, idx) =>
           page === '...' ? (
-            <span key={`ellipsis-${idx}`} className="page-ellipsis">
+            <span key={`ellipsis-${idx}`} className="px-1 text-sm" style={{ color: 'var(--muted-foreground)' }}>
               ...
             </span>
           ) : (
-            <button
+            <Button
               key={page}
+              variant={currentPage === page ? 'default' : 'outline'}
+              size="sm"
               onClick={() => onPageChange(page as number)}
-              className={`page-btn ${currentPage === page ? 'active' : ''}`}
             >
               {page}
-            </button>
+            </Button>
           )
         )}
 
-        <button
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="page-btn"
         >
           Next
-        </button>
+        </Button>
       </div>
     );
   };
 
   if (records.length === 0) {
     return (
-      <div className="no-records">
-        <p>No records found matching your filters.</p>
+      <div className="py-16 text-center rounded-lg bg-card">
+        <p className="text-lg" style={{ color: 'var(--muted-foreground)' }}>
+          No records found matching your filters.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="data-table-container">
-      <div className="table-info">
-        <p>
-          Showing {records.length} of {total.toLocaleString()} records (Page{' '}
-          {currentPage} of {totalPages})
-        </p>
-      </div>
+    <div className="flex flex-col gap-3">
+      <p className="text-sm text-center" style={{ color: 'var(--muted-foreground)' }}>
+        Showing {records.length} of {total.toLocaleString()} records (Page {currentPage} of {totalPages})
+      </p>
 
-      <div className="table-wrapper">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Incident #</th>
-              <th>Date</th>
-              <th>Category</th>
-              <th>Call (911) Problem</th>
-              <th>Type of Incident</th>
-              <th>Address</th>
-            </tr>
-          </thead>
-          <tbody>
+      <ScrollArea className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow style={{ backgroundColor: 'var(--primary)' }}>
+              <TableHead className="text-primary-foreground font-semibold uppercase text-xs tracking-wide">Incident #</TableHead>
+              <TableHead className="text-primary-foreground font-semibold uppercase text-xs tracking-wide">Date</TableHead>
+              <TableHead className="text-primary-foreground font-semibold uppercase text-xs tracking-wide">Category</TableHead>
+              <TableHead className="text-primary-foreground font-semibold uppercase text-xs tracking-wide">Call (911) Problem</TableHead>
+              <TableHead className="text-primary-foreground font-semibold uppercase text-xs tracking-wide">Type of Incident</TableHead>
+              <TableHead className="text-primary-foreground font-semibold uppercase text-xs tracking-wide">Address</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {records.map((record) => (
-              <tr key={record.id}>
-                <td className="incident-number">{record.incident_number}</td>
-                <td>{formatDate(record.edate)}</td>
-                <td>{getCategoryBadge(record.geo_category)}</td>
-                <td className="call-problem">{record.call_signal || 'N/A'}</td>
-                <td className="incident-type">{record.offincident || 'N/A'}</td>
-                <td className="address">{record.incident_address || 'N/A'}</td>
-              </tr>
+              <TableRow key={record.id}>
+                <TableCell className="font-mono font-medium text-sm" style={{ color: 'var(--accent)' }}>
+                  {record.incident_number}
+                </TableCell>
+                <TableCell>{formatDate(record.edate)}</TableCell>
+                <TableCell>
+                  <Badge className={categoryClasses[record.geo_category] ?? 'bg-gray-500 text-white'}>
+                    {record.geo_category}
+                  </Badge>
+                </TableCell>
+                <TableCell className="max-w-[200px] truncate">{record.call_signal || 'N/A'}</TableCell>
+                <TableCell className="max-w-[250px] truncate">{record.offincident || 'N/A'}</TableCell>
+                <TableCell className="max-w-[300px] truncate">{record.incident_address || 'N/A'}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </ScrollArea>
 
       {renderPagination()}
     </div>

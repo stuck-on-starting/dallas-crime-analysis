@@ -1,19 +1,17 @@
-import { Link } from 'react-router-dom';
 import { CrimeMap } from '../components/CrimeMap';
-import '../styles/Pages.css';
 
 export function MapPage() {
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <Link to="/" className="back-link">← Back to Home</Link>
-        <h1>Crime Incident Map</h1>
-        <p>Interactive map showing crime locations and district boundaries</p>
+    <div className="flex flex-col gap-4">
+      <div>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>Crime Incident Map</h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--muted-foreground)' }}>
+          Interactive map showing crime locations and district boundaries
+        </p>
       </div>
-
-      <section className="visualization-section">
+      <div className="bg-card rounded-lg shadow-sm p-4">
         <CrimeMap />
-      </section>
+      </div>
     </div>
   );
 }
