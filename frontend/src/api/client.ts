@@ -2,7 +2,9 @@
  * API Client for Dallas Crime Analysis Backend
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// In dev, Vite proxies /api → http://localhost:3000, so relative paths work
+// from any device on the network. In production, set VITE_API_URL explicitly.
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 export interface StatsOverview {
   totalRecords: number;
