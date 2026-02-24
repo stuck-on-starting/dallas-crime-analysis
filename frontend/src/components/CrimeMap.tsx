@@ -5,6 +5,13 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { api } from '../api/client';
 import type { BoundaryFeature, IncidentFeature } from '../api/client';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // Available years for selection (2014 to current year)
 const currentYear = new Date().getFullYear();
@@ -36,31 +43,22 @@ const formatDateTime = (dateStr: string | null): string => {
   }
 };
 
-// Format category to display name
 const formatArea = (category: string): string => {
   switch (category) {
-    case 'inside':
-      return 'Inside District';
-    case 'bordering':
-      return 'Bordering District';
-    default:
-      return category;
+    case 'inside': return 'Inside District';
+    case 'bordering': return 'Bordering District';
+    default: return category;
   }
 };
 
-// Get category color
 const getCategoryColor = (cat: string): string => {
   switch (cat) {
-    case 'inside':
-      return '#ff6b00';
-    case 'bordering':
-      return '#00d4ff';
-    default:
-      return '#ffff00';
+    case 'inside': return '#ff6b00';
+    case 'bordering': return '#00d4ff';
+    default: return '#ffff00';
   }
 };
 
-// Create popup content for an incident
 const createPopupContent = (props: IncidentFeature['properties']): string => {
   return `
     <div>
@@ -76,14 +74,12 @@ const createPopupContent = (props: IncidentFeature['properties']): string => {
   `;
 };
 
-// Component to render incidents using native Leaflet (much faster than React components)
 function IncidentsLayer({ incidents }: { incidents: { type: 'FeatureCollection'; features: IncidentFeature[] } | undefined }) {
   const map = useMap();
   const layerRef = useRef<L.GeoJSON | null>(null);
   const rendererRef = useRef<L.Canvas | null>(null);
 
   useEffect(() => {
-    // Remove existing layer
     if (layerRef.current) {
       map.removeLayer(layerRef.current);
       layerRef.current = null;
@@ -91,13 +87,11 @@ function IncidentsLayer({ incidents }: { incidents: { type: 'FeatureCollection';
 
     if (!incidents || incidents.features.length === 0) return;
 
-    // Create a single shared Canvas renderer for all markers
     if (!rendererRef.current) {
       rendererRef.current = L.canvas({ padding: 0.5 });
     }
     const canvasRenderer = rendererRef.current;
 
-    // Create GeoJSON layer with shared Canvas renderer for performance
     const geojsonLayer = L.geoJSON(incidents as any, {
       pointToLayer: (feature, latlng) => {
         const marker = L.circleMarker(latlng, {
@@ -107,14 +101,10 @@ function IncidentsLayer({ incidents }: { incidents: { type: 'FeatureCollection';
           weight: 1,
           fillOpacity: 0.8,
           renderer: canvasRenderer,
-          interactive: true,  // Ensure markers are clickable
+          interactive: true,
         });
 
-        // Bind popup directly to each marker
-        marker.bindPopup(createPopupContent(feature.properties), {
-          maxWidth: 300,
-        });
-
+        marker.bindPopup(createPopupContent(feature.properties), { maxWidth: 300 });
         return marker;
       },
     });
@@ -135,13 +125,11 @@ function IncidentsLayer({ incidents }: { incidents: { type: 'FeatureCollection';
 export function CrimeMap() {
   const [selectedYear, setSelectedYear] = useState<string>('');
 
-  // Always load boundaries
   const { data: boundaries, isLoading: boundariesLoading } = useQuery({
     queryKey: ['boundaries'],
     queryFn: () => api.getBoundaries(),
   });
 
-  // Only load incidents when a year is selected
   const { data: incidents, isLoading: incidentsLoading, isFetching: incidentsFetching } = useQuery({
     queryKey: ['mapIncidents', selectedYear],
     queryFn: async () => {
@@ -149,7 +137,6 @@ export function CrimeMap() {
         api.getMapIncidents('inside', 50000, selectedYear),
         api.getMapIncidents('bordering', 50000, selectedYear),
       ]);
-
       return {
         type: 'FeatureCollection' as const,
         features: [...insideData.features, ...borderingData.features],
@@ -158,7 +145,6 @@ export function CrimeMap() {
     enabled: !!selectedYear,
   });
 
-  // Memoize boundary data to prevent unnecessary re-renders
   const districtBoundary = useMemo(() =>
     boundaries?.features.find((f) => f.properties.category === 'district'),
     [boundaries]
@@ -171,8 +157,9 @@ export function CrimeMap() {
 
   if (boundariesLoading) {
     return (
-      <div className="loading">
-        <span className="loading-text">Loading map data...</span>
+      <div className="flex items-center justify-center py-16">
+        <div className="w-10 h-10 border-4 rounded-full animate-spin" style={{ borderColor: 'var(--muted)', borderTopColor: 'var(--accent)' }} />
+        <span className="ml-4" style={{ color: 'var(--muted-foreground)' }}>Loading map data...</span>
       </div>
     );
   }
@@ -185,70 +172,56 @@ export function CrimeMap() {
     fillOpacity: 0.1,
   });
 
-  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedYear(e.target.value);
-  };
-
   return (
-    <div className="map-container" style={{ width: '100%' }}>
-      <div className="map-controls" style={{ width: '100%' }}>
-        <label>
-          Select Year:
-          <select
-            value={selectedYear}
-            onChange={handleYearChange}
-            style={{ marginLeft: '10px', padding: '8px', fontSize: '1rem' }}
-          >
-            <option value="">-- Select a year --</option>
-            {availableYears.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </label>
+    <div className="flex flex-col gap-4" style={{ width: '100%' }}>
+      {/* Year selector */}
+      <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+            Select Year:
+          </label>
+          <Select value={selectedYear} onValueChange={setSelectedYear}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="-- Select a year --" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableYears.map((year) => (
+                <SelectItem key={year} value={year}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {selectedYear && (
-          <span className="map-info" style={{ marginLeft: '20px' }}>
-            {incidentsLoading || incidentsFetching ? (
-              'Loading incidents...'
-            ) : incidents ? (
-              `Showing ${incidents.features.length.toLocaleString()} incidents for ${selectedYear}`
-            ) : null}
+          <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+            {incidentsLoading || incidentsFetching
+              ? 'Loading incidents...'
+              : incidents
+              ? `Showing ${incidents.features.length.toLocaleString()} incidents for ${selectedYear}`
+              : null}
           </span>
         )}
 
         {!selectedYear && (
-          <span className="map-info" style={{ marginLeft: '20px', color: '#666' }}>
+          <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
             Select a year to display crime incidents on the map
           </span>
         )}
       </div>
 
+      {/* Loading indicator */}
       {(incidentsLoading || incidentsFetching) && selectedYear && (
-        <div style={{
-          padding: '20px',
-          textAlign: 'center',
-          background: '#f8f9fa',
-          borderRadius: '8px',
-          marginBottom: '15px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '15px'
-        }}>
-          <div style={{
-            width: '24px',
-            height: '24px',
-            border: '3px solid #f3f3f3',
-            borderTop: '3px solid #667eea',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite'
-          }} />
-          <span>Loading incidents for {selectedYear}...</span>
+        <div className="flex items-center justify-center gap-4 p-4 rounded-lg" style={{ background: 'var(--muted)' }}>
+          <div className="w-6 h-6 border-3 rounded-full animate-spin" style={{ borderColor: 'var(--muted)', borderTopColor: 'var(--accent)' }} />
+          <span className="text-sm" style={{ color: 'var(--foreground)' }}>
+            Loading incidents for {selectedYear}...
+          </span>
         </div>
       )}
 
+      {/* Map */}
       <MapContainer
         center={center}
         zoom={14}
@@ -280,27 +253,29 @@ export function CrimeMap() {
           </LayersControl.Overlay>
         </LayersControl>
 
-        {/* Render incidents using native Leaflet for performance */}
         <IncidentsLayer incidents={incidents} />
       </MapContainer>
 
-      <div className="map-legend" style={{ color: '#333' }}>
-        <h4 style={{ color: '#333' }}>Legend:</h4>
-        <div className="legend-item" style={{ color: '#333' }}>
-          <span className="legend-color" style={{ backgroundColor: '#ff6b00', border: '2px solid white', boxShadow: '0 0 2px rgba(0,0,0,0.3)' }}></span>
-          Inside District
-        </div>
-        <div className="legend-item" style={{ color: '#333' }}>
-          <span className="legend-color" style={{ backgroundColor: '#00d4ff', border: '2px solid white', boxShadow: '0 0 2px rgba(0,0,0,0.3)' }}></span>
-          Bordering District
-        </div>
-        <div className="legend-item" style={{ color: '#333' }}>
-          <span className="legend-line" style={{ backgroundColor: '#ff0000' }}></span>
-          District Boundary
-        </div>
-        <div className="legend-item" style={{ color: '#333' }}>
-          <span className="legend-line" style={{ backgroundColor: '#0000ff' }}></span>
-          Buffer Zone
+      {/* Legend */}
+      <div className="p-3 rounded-lg" style={{ background: 'var(--muted)', color: 'var(--foreground)' }}>
+        <h4 className="font-medium mb-2">Legend:</h4>
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-4 h-4 rounded-full border-2 border-white shadow" style={{ backgroundColor: '#ff6b00' }} />
+            <span className="text-sm">Inside District</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-4 h-4 rounded-full border-2 border-white shadow" style={{ backgroundColor: '#00d4ff' }} />
+            <span className="text-sm">Bordering District</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-8 h-0.5" style={{ backgroundColor: '#ff0000' }} />
+            <span className="text-sm">District Boundary</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-8 h-0.5" style={{ backgroundColor: '#0000ff' }} />
+            <span className="text-sm">Buffer Zone</span>
+          </div>
         </div>
       </div>
     </div>

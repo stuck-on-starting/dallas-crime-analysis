@@ -1,17 +1,22 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import type { RecordsFilters } from '../api/client';
 import { DataTable } from '../components/DataTable';
-import '../styles/Pages.css';
-import '../styles/RecordsPage.css';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export function RecordsPage() {
-  // Track whether user has initiated a search
   const [hasSearched, setHasSearched] = useState(false);
 
-  // Form state (what user is editing)
   const [formFilters, setFormFilters] = useState<RecordsFilters>({
     page: 1,
     limit: 50,
@@ -22,7 +27,6 @@ export function RecordsPage() {
     search: '',
   });
 
-  // Applied filters (what's sent to API)
   const [appliedFilters, setAppliedFilters] = useState<RecordsFilters>({
     page: 1,
     limit: 50,
@@ -41,22 +45,12 @@ export function RecordsPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['records', appliedFilters],
     queryFn: () => api.getRecords(appliedFilters),
-    enabled: hasSearched, // Only fetch after user clicks Search
+    enabled: hasSearched,
   });
-
-  const handleFormChange = (key: keyof RecordsFilters, value: any) => {
-    setFormFilters((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
 
   const handleSearch = () => {
     setHasSearched(true);
-    setAppliedFilters({
-      ...formFilters,
-      page: 1, // Reset to page 1 when searching
-    });
+    setAppliedFilters({ ...formFilters, page: 1 });
   };
 
   const handlePageChange = (page: number) => {
@@ -67,7 +61,7 @@ export function RecordsPage() {
   };
 
   const clearFilters = () => {
-    const defaultFilters = {
+    const defaultFilters: RecordsFilters = {
       page: 1,
       limit: 50,
       category: 'all',
@@ -78,7 +72,7 @@ export function RecordsPage() {
     };
     setFormFilters(defaultFilters);
     setAppliedFilters(defaultFilters);
-    setHasSearched(false); // Don't reload data after clearing
+    setHasSearched(false);
   };
 
   const hasActiveFilters =
@@ -89,137 +83,141 @@ export function RecordsPage() {
     appliedFilters.search;
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <Link to="/" className="back-link">
-          ← Back to Home
-        </Link>
-        <h1>Data Records</h1>
-        <p>Browse and filter crime incident records</p>
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>Data Records</h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--muted-foreground)' }}>Browse and filter crime incident records</p>
       </div>
 
-      <section className="visualization-section">
-        <div className="filters-section">
-          <h3>Filters</h3>
+      {/* Filters */}
+      <div className="p-6 rounded-lg" style={{ background: 'var(--muted)' }}>
+        <h3 className="text-lg font-semibold mb-4 text-center" style={{ color: 'var(--foreground)' }}>Filters</h3>
 
-          <div className="filters-grid">
-            {/* Search */}
-            <div className="filter-group full-width">
-              <label>Search by Incident # or Address</label>
-              <input
-                type="text"
-                placeholder="Search..."
-                value={formFilters.search || ''}
-                onChange={(e) => handleFormChange('search', e.target.value)}
-                className="filter-input"
-              />
-            </div>
-
-            {/* Category Filter */}
-            <div className="filter-group">
-              <label>Category</label>
-              <select
-                value={formFilters.category || 'all'}
-                onChange={(e) => handleFormChange('category', e.target.value)}
-                className="filter-select"
-              >
-                <option value="all">All Categories</option>
-                <option value="inside">Inside District</option>
-                <option value="bordering">Bordering District</option>
-                <option value="outside">Outside District</option>
-              </select>
-            </div>
-
-            {/* NIBRS Crime Type Filter */}
-            <div className="filter-group">
-              <label>Crime Type</label>
-              <select
-                value={formFilters.nibrs || 'all'}
-                onChange={(e) => handleFormChange('nibrs', e.target.value)}
-                className="filter-select"
-              >
-                <option value="all">All Crime Types</option>
-                {nibrsCategories?.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Date Range */}
-            <div className="filter-group">
-              <label>Start Date</label>
-              <input
-                type="date"
-                value={formFilters.startDate || ''}
-                onChange={(e) => handleFormChange('startDate', e.target.value)}
-                className="filter-input"
-              />
-            </div>
-
-            <div className="filter-group">
-              <label>End Date</label>
-              <input
-                type="date"
-                value={formFilters.endDate || ''}
-                onChange={(e) => handleFormChange('endDate', e.target.value)}
-                className="filter-input"
-              />
-            </div>
-
-            {/* Records Per Page */}
-            <div className="filter-group">
-              <label>Records Per Page</label>
-              <select
-                value={formFilters.limit || 50}
-                onChange={(e) =>
-                  handleFormChange('limit', Number(e.target.value))
-                }
-                className="filter-select"
-              >
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+          {/* Search — full width */}
+          <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-3">
+            <Label>Search by Incident # or Address</Label>
+            <Input
+              placeholder="Search..."
+              value={formFilters.search || ''}
+              onChange={(e) => setFormFilters((prev) => ({ ...prev, search: e.target.value }))}
+            />
           </div>
 
-          <div className="filter-actions">
-            <button onClick={handleSearch} className="search-btn">
-              Search
-            </button>
-            {hasActiveFilters && (
-              <button onClick={clearFilters} className="clear-filters-btn">
-                Clear All Filters
-              </button>
-            )}
+          {/* Category */}
+          <div className="flex flex-col gap-1.5">
+            <Label>Category</Label>
+            <Select
+              value={formFilters.category || 'all'}
+              onValueChange={(v) => setFormFilters((prev) => ({ ...prev, category: v }))}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="inside">Inside District</SelectItem>
+                <SelectItem value="bordering">Bordering District</SelectItem>
+                <SelectItem value="outside">Outside District</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Crime Type */}
+          <div className="flex flex-col gap-1.5">
+            <Label>Crime Type</Label>
+            <Select
+              value={(typeof formFilters.nibrs === 'string' ? formFilters.nibrs : undefined) ?? 'all'}
+              onValueChange={(v) => setFormFilters((prev) => ({ ...prev, nibrs: v }))}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Crime Types</SelectItem>
+                {nibrsCategories?.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Records per page */}
+          <div className="flex flex-col gap-1.5">
+            <Label>Records Per Page</Label>
+            <Select
+              value={String(formFilters.limit ?? 50)}
+              onValueChange={(v) => setFormFilters((prev) => ({ ...prev, limit: Number(v) }))}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Start date */}
+          <div className="flex flex-col gap-1.5">
+            <Label>Start Date</Label>
+            <Input
+              type="date"
+              value={formFilters.startDate || ''}
+              onChange={(e) => setFormFilters((prev) => ({ ...prev, startDate: e.target.value }))}
+              style={{ colorScheme: 'light' }}
+            />
+          </div>
+
+          {/* End date */}
+          <div className="flex flex-col gap-1.5">
+            <Label>End Date</Label>
+            <Input
+              type="date"
+              value={formFilters.endDate || ''}
+              onChange={(e) => setFormFilters((prev) => ({ ...prev, endDate: e.target.value }))}
+              style={{ colorScheme: 'light' }}
+            />
           </div>
         </div>
 
-        {isLoading && (
-          <div className="loading">
-            <span className="loading-text">Loading records...</span>
-          </div>
-        )}
+        <div className="flex gap-3 justify-center">
+          <Button onClick={handleSearch}>Search</Button>
+          {hasActiveFilters && (
+            <Button variant="destructive" onClick={clearFilters}>
+              Clear All Filters
+            </Button>
+          )}
+        </div>
+      </div>
 
-        {error && (
-          <div className="error">
-            Error loading records:{' '}
-            {error instanceof Error ? error.message : 'Unknown error'}
-          </div>
-        )}
+      {/* Results */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="w-10 h-10 border-4 rounded-full animate-spin" style={{ borderColor: 'var(--muted)', borderTopColor: 'var(--accent)' }} />
+          <span className="ml-4" style={{ color: 'var(--muted-foreground)' }}>Loading records...</span>
+        </div>
+      )}
 
-        {data && (
-          <DataTable
-            records={data.records}
-            currentPage={data.pagination.page}
-            totalPages={data.pagination.totalPages}
-            total={data.pagination.total}
-            onPageChange={handlePageChange}
-          />
-        )}
-      </section>
+      {error && (
+        <div className="p-4 rounded-md" style={{ color: 'var(--destructive)', background: 'oklch(0.95 0.05 27)' }}>
+          Error loading records: {error instanceof Error ? error.message : 'Unknown error'}
+        </div>
+      )}
+
+      {data && (
+        <DataTable
+          records={data.records}
+          currentPage={data.pagination.page}
+          totalPages={data.pagination.totalPages}
+          total={data.pagination.total}
+          onPageChange={handlePageChange}
+        />
+      )}
     </div>
   );
 }
