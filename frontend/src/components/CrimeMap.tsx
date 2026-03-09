@@ -53,9 +53,9 @@ const formatArea = (category: string): string => {
 
 const getCategoryColor = (cat: string): string => {
   switch (cat) {
-    case 'inside': return '#ff6b00';
-    case 'bordering': return '#00d4ff';
-    default: return '#ffff00';
+    case 'inside': return '#1e3a5f';
+    case 'bordering': return '#60a5fa';
+    default: return '#94a3b8';
   }
 };
 
@@ -178,13 +178,13 @@ export function CrimeMap() {
       <div className="flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
-            Select Year:
+            Select a year to display crime incidents on the map:
           </label>
           <Select value={selectedYear} onValueChange={setSelectedYear}>
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="-- Select a year --" />
+              <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="z-[9999]">
               {availableYears.map((year) => (
                 <SelectItem key={year} value={year}>
                   {year}
@@ -204,11 +204,6 @@ export function CrimeMap() {
           </span>
         )}
 
-        {!selectedYear && (
-          <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
-            Select a year to display crime incidents on the map
-          </span>
-        )}
       </div>
 
       {/* Loading indicator */}
@@ -234,7 +229,7 @@ export function CrimeMap() {
         />
 
         <LayersControl position="topright">
-          <LayersControl.Overlay checked name="District Boundary">
+          <LayersControl.Overlay checked name="Prestonwood PID Boundary">
             {districtBoundary && (
               <GeoJSON
                 data={districtBoundary as any}
@@ -243,7 +238,7 @@ export function CrimeMap() {
             )}
           </LayersControl.Overlay>
 
-          <LayersControl.Overlay checked name="Buffer Zone">
+          <LayersControl.Overlay checked name="Bordering District Boundary">
             {bufferBoundary && (
               <GeoJSON
                 data={bufferBoundary as any}
@@ -261,20 +256,20 @@ export function CrimeMap() {
         <h4 className="font-medium mb-2">Legend:</h4>
         <div className="flex flex-wrap gap-4">
           <div className="flex items-center gap-2">
-            <span className="inline-block w-4 h-4 rounded-full border-2 border-white shadow" style={{ backgroundColor: '#ff6b00' }} />
-            <span className="text-sm">Inside District</span>
+            <span className="inline-block w-4 h-4 rounded-full border-2 border-white shadow" style={{ backgroundColor: '#1e3a5f' }} />
+            <span className="text-sm">Prestonwood PID Incident</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="inline-block w-4 h-4 rounded-full border-2 border-white shadow" style={{ backgroundColor: '#00d4ff' }} />
-            <span className="text-sm">Bordering District</span>
+            <span className="inline-block w-4 h-4 rounded-full border-2 border-white shadow" style={{ backgroundColor: '#60a5fa' }} />
+            <span className="text-sm">Bordering District Incident</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="inline-block w-8 h-0.5" style={{ backgroundColor: '#ff0000' }} />
-            <span className="text-sm">District Boundary</span>
+            <span className="text-sm">Prestonwood PID Boundary</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="inline-block w-8 h-0.5" style={{ backgroundColor: '#0000ff' }} />
-            <span className="text-sm">Buffer Zone</span>
+            <span className="text-sm">Bordering District Boundary</span>
           </div>
         </div>
       </div>

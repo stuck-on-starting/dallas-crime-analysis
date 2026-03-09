@@ -7,7 +7,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -18,12 +17,6 @@ interface DataTableProps {
   total: number;
   onPageChange: (page: number) => void;
 }
-
-const categoryClasses: Record<string, string> = {
-  inside: 'bg-purple-500 hover:bg-purple-500 text-white',
-  bordering: 'bg-green-500 hover:bg-green-500 text-white',
-  outside: 'bg-orange-400 hover:bg-orange-400 text-white',
-};
 
 export function DataTable({
   records,
@@ -119,7 +112,6 @@ export function DataTable({
             <TableRow style={{ backgroundColor: 'var(--primary)' }}>
               <TableHead className="text-primary-foreground font-semibold uppercase text-xs tracking-wide">Incident #</TableHead>
               <TableHead className="text-primary-foreground font-semibold uppercase text-xs tracking-wide">Date</TableHead>
-              <TableHead className="text-primary-foreground font-semibold uppercase text-xs tracking-wide">Category</TableHead>
               <TableHead className="text-primary-foreground font-semibold uppercase text-xs tracking-wide">Call (911) Problem</TableHead>
               <TableHead className="text-primary-foreground font-semibold uppercase text-xs tracking-wide">Type of Incident</TableHead>
               <TableHead className="text-primary-foreground font-semibold uppercase text-xs tracking-wide">Address</TableHead>
@@ -132,11 +124,6 @@ export function DataTable({
                   {record.incident_number}
                 </TableCell>
                 <TableCell>{formatDate(record.edate)}</TableCell>
-                <TableCell>
-                  <Badge className={categoryClasses[record.geo_category] ?? 'bg-gray-500 text-white'}>
-                    {record.geo_category}
-                  </Badge>
-                </TableCell>
                 <TableCell className="max-w-[200px] truncate">{record.call_signal || 'N/A'}</TableCell>
                 <TableCell className="max-w-[250px] truncate">{record.offincident || 'N/A'}</TableCell>
                 <TableCell className="max-w-[300px] truncate">{record.incident_address || 'N/A'}</TableCell>

@@ -41,10 +41,23 @@ export function YearlyBarChart({ category = 'all' }: YearlyBarChartProps) {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="year" />
           <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="inside" fill="#8884d8" name="Inside District" />
-          <Bar dataKey="bordering" fill="#82ca9d" name="Bordering District" />
+          <Tooltip itemSorter={(item) => item.dataKey === 'inside' ? 0 : 1} />
+          <Legend content={({ payload }) => {
+            if (!payload) return null;
+            const sorted = [...payload].sort((a, _b) => (a.dataKey === 'inside' ? -1 : 1));
+            return (
+              <ul className="flex justify-center gap-6 mt-2 text-sm list-none p-0">
+                {sorted.map((entry) => (
+                  <li key={entry.dataKey as string} className="flex items-center gap-1.5">
+                    <span style={{ display: 'inline-block', width: 12, height: 12, backgroundColor: entry.color, borderRadius: 2 }} />
+                    {entry.value}
+                  </li>
+                ))}
+              </ul>
+            );
+          }} />
+          <Bar dataKey="inside" fill="#1e3a5f" name="Inside Prestonwood PID" />
+          <Bar dataKey="bordering" fill="#60a5fa" name="Bordering District" />
         </BarChart>
       </ResponsiveContainer>
     </div>

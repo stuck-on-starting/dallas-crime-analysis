@@ -2,7 +2,9 @@
  * API Client for Dallas Crime Analysis Backend
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// In dev, Vite proxies /api → http://localhost:3000, so relative paths work
+// from any device on the network. In production, set VITE_API_URL explicitly.
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 export interface StatsOverview {
   totalRecords: number;
@@ -103,6 +105,7 @@ export interface RecordsFilters {
   startDate?: string;
   endDate?: string;
   search?: string;
+  knownTotal?: number;
 }
 
 async function fetchAPI<T>(endpoint: string): Promise<T> {
@@ -184,6 +187,7 @@ export const api = {
     if (filters.startDate) params.append('startDate', filters.startDate);
     if (filters.endDate) params.append('endDate', filters.endDate);
     if (filters.search) params.append('search', filters.search);
+    if (filters.knownTotal !== undefined) params.append('knownTotal', filters.knownTotal.toString());
 
     return fetchAPI<RecordsResponse>(
       `/api/incidents/records?${params.toString()}`

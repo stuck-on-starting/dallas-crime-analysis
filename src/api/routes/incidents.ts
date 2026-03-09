@@ -79,27 +79,44 @@ incidentRoutes.get('/time-series', (req: Request, res: Response) => {
  * GET /api/incidents/by-year
  * Get yearly aggregated data
  */
+// In-process caches (invalidated on server restart or stats refresh)
+let yearlyDataCache: { data: any[]; cachedAt: number } | null = null;
+let nibrsCategoriesCache: string[] | null = null;
+
+export function invalidateIncidentCaches(): void {
+  yearlyDataCache = null;
+  nibrsCategoriesCache = null;
+}
+
 incidentRoutes.get('/by-year', (req: Request, res: Response) => {
   try {
     const { category } = req.query;
+    const filterCategory = category && category !== 'all' ? (category as string) : null;
 
+    // Serve unfiltered requests from cache
+    if (!filterCategory && yearlyDataCache) {
+      return res.json(yearlyDataCache.data);
+    }
+
+    // Use pre-extracted eyear column — avoids strftime() full table scan
+    // idx_crime_category_year on (geo_category, eyear) makes this fast
     let query = `
       SELECT
-        strftime('%Y', edate) as year,
+        CAST(eyear AS TEXT) as year,
         geo_category,
         COUNT(*) as count
       FROM crime_incidents
-      WHERE edate IS NOT NULL
+      WHERE eyear IS NOT NULL
     `;
 
     const params: any[] = [];
 
-    if (category && category !== 'all') {
+    if (filterCategory) {
       query += ' AND geo_category = ?';
-      params.push(category);
+      params.push(filterCategory);
     }
 
-    query += ' GROUP BY year, geo_category ORDER BY year ASC';
+    query += ' GROUP BY eyear, geo_category ORDER BY eyear ASC';
 
     const results = db.prepare(query).all(...params) as Array<{
       year: string;
@@ -124,6 +141,11 @@ incidentRoutes.get('/by-year', (req: Request, res: Response) => {
 
     const data = Object.values(yearlyData);
 
+    // Cache unfiltered result for the lifetime of this server process
+    if (!filterCategory) {
+      yearlyDataCache = { data, cachedAt: Date.now() };
+    }
+
     res.json(data);
   } catch (error) {
     logger.error('Error in /api/incidents/by-year:', error);
@@ -137,6 +159,10 @@ incidentRoutes.get('/by-year', (req: Request, res: Response) => {
  */
 incidentRoutes.get('/nibrs-categories', (req: Request, res: Response) => {
   try {
+    if (nibrsCategoriesCache) {
+      return res.json(nibrsCategoriesCache);
+    }
+
     const results = db
       .prepare(
         `SELECT DISTINCT nibrs_crime
@@ -146,9 +172,9 @@ incidentRoutes.get('/nibrs-categories', (req: Request, res: Response) => {
       )
       .all() as Array<{ nibrs_crime: string }>;
 
-    const categories = results.map((r) => r.nibrs_crime);
+    nibrsCategoriesCache = results.map((r) => r.nibrs_crime);
 
-    res.json(categories);
+    res.json(nibrsCategoriesCache);
   } catch (error) {
     logger.error('Error in /api/incidents/nibrs-categories:', error);
     res.status(500).json({ error: 'Failed to fetch NIBRS categories' });
@@ -249,6 +275,7 @@ incidentRoutes.get('/records', (req: Request, res: Response) => {
       startDate,
       endDate,
       search,
+      knownTotal,
     } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string));
@@ -260,9 +287,10 @@ incidentRoutes.get('/records', (req: Request, res: Response) => {
     const params: any[] = [];
 
     // Category filter
-    if (category && category !== 'all') {
+    const filterCategory = category && category !== 'all' ? (category as string) : null;
+    if (filterCategory) {
       whereClauses.push('geo_category = ?');
-      params.push(category);
+      params.push(filterCategory);
     }
 
     // NIBRS crime type filter
@@ -295,10 +323,31 @@ incidentRoutes.get('/records', (req: Request, res: Response) => {
     const whereClause =
       whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
 
-    // Count total records
-    const countQuery = `SELECT COUNT(*) as total FROM crime_incidents ${whereClause}`;
-    const countResult = db.prepare(countQuery).get(...params) as { total: number };
-    const total = countResult.total;
+    // Determine total record count:
+    // 1. Use knownTotal from client (page 2+ navigation — total doesn't change)
+    // 2. For unfiltered / category-only queries, serve from cached stats (avoids full scan)
+    // 3. Otherwise run a COUNT query
+    let total: number;
+    const isSimpleFilter = whereClauses.length === 0 || (whereClauses.length === 1 && filterCategory);
+    if (knownTotal) {
+      total = parseInt(knownTotal as string);
+    } else if (isSimpleFilter) {
+      const { getCachedStats } = require('../../scripts/cache-stats');
+      const cached = getCachedStats();
+      if (cached) {
+        if (!filterCategory) {
+          total = cached.totalRecords;
+        } else {
+          total = cached.categoryDistribution[filterCategory as keyof typeof cached.categoryDistribution] ?? 0;
+        }
+      } else {
+        const countResult = db.prepare(`SELECT COUNT(*) as total FROM crime_incidents ${whereClause}`).get(...params) as { total: number };
+        total = countResult.total;
+      }
+    } else {
+      const countResult = db.prepare(`SELECT COUNT(*) as total FROM crime_incidents ${whereClause}`).get(...params) as { total: number };
+      total = countResult.total;
+    }
 
     // Fetch records
     const dataQuery = `
