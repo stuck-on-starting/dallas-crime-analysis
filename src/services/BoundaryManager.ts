@@ -7,7 +7,7 @@ import {
   BoundaryMetadata,
   BoundaryFeature,
 } from '../models/Boundary';
-import { Feature, Polygon, MultiPolygon } from '@turf/helpers';
+import type { Feature, Polygon, MultiPolygon } from 'geojson';
 
 export class BoundaryManager {
   /**

@@ -13,7 +13,7 @@ RUN npm ci
 COPY tsconfig.json ./
 COPY src/ ./src/
 COPY database/schema.sql ./database/schema.sql
-RUN npm run build
+RUN npx tsc -p tsconfig.build.json
 
 # Prune dev dependencies
 RUN npm prune --production

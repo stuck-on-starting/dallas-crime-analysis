@@ -1,4 +1,4 @@
-import { Feature, Polygon, MultiPolygon } from '@turf/helpers';
+import type { Feature, Polygon, MultiPolygon } from 'geojson';
 
 // Boundary data model
 export interface Boundary {
