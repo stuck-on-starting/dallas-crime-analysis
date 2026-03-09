@@ -6,12 +6,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 
 const navItems = [
   { to: '/', label: 'Home' },
-  { to: '/overview', label: 'Overview' },
+  { to: '/yearly', label: 'Yearly Comparison' },
   { to: '/map', label: 'Crime Map' },
-  { to: '/boundaries', label: 'Boundaries' },
-  { to: '/records', label: 'Records' },
-  { to: '/yearly', label: 'Yearly' },
-  { to: '/nibrs', label: 'NIBRS Filter' },
+  { to: '/overview', label: 'Overview' },
+  { to: '/records', label: 'All Records' },
 ];
 
 export function Layout() {

@@ -46,15 +46,17 @@ export function RecordsPage() {
     queryKey: ['records', appliedFilters],
     queryFn: () => api.getRecords(appliedFilters),
     enabled: hasSearched,
+    staleTime: 60_000,
   });
 
   const handleSearch = () => {
     setHasSearched(true);
-    setAppliedFilters({ ...formFilters, page: 1 });
+    const { knownTotal: _, ...filtersWithoutTotal } = formFilters;
+    setAppliedFilters({ ...filtersWithoutTotal, page: 1 });
   };
 
   const handlePageChange = (page: number) => {
-    const newFilters = { ...appliedFilters, page };
+    const newFilters = { ...appliedFilters, page, knownTotal: data?.pagination.total };
     setAppliedFilters(newFilters);
     setFormFilters(newFilters);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -104,9 +106,9 @@ export function RecordsPage() {
             />
           </div>
 
-          {/* Category */}
+          {/* Boundary */}
           <div className="flex flex-col gap-1.5">
-            <Label>Category</Label>
+            <Label>Boundary</Label>
             <Select
               value={formFilters.category || 'all'}
               onValueChange={(v) => setFormFilters((prev) => ({ ...prev, category: v }))}
@@ -115,10 +117,9 @@ export function RecordsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="inside">Inside District</SelectItem>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="inside">Prestonwood PID</SelectItem>
                 <SelectItem value="bordering">Bordering District</SelectItem>
-                <SelectItem value="outside">Outside District</SelectItem>
               </SelectContent>
             </Select>
           </div>

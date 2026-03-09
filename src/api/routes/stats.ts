@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import db from '../../config/database';
 import { logger } from '../../config/logger';
 import { getCachedStats, refreshStatsCache } from '../../scripts/cache-stats';
+import { invalidateIncidentCaches } from './incidents';
 
 export const statsRoutes = Router();
 
@@ -40,6 +41,7 @@ statsRoutes.get('/overview', (req: Request, res: Response) => {
 statsRoutes.post('/refresh', (req: Request, res: Response) => {
   try {
     logger.info('Manual stats cache refresh requested');
+    invalidateIncidentCaches();
     const stats = refreshStatsCache();
     res.json({
       message: 'Statistics cache refreshed successfully',

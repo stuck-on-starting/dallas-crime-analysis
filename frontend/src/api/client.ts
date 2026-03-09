@@ -105,6 +105,7 @@ export interface RecordsFilters {
   startDate?: string;
   endDate?: string;
   search?: string;
+  knownTotal?: number;
 }
 
 async function fetchAPI<T>(endpoint: string): Promise<T> {
@@ -186,6 +187,7 @@ export const api = {
     if (filters.startDate) params.append('startDate', filters.startDate);
     if (filters.endDate) params.append('endDate', filters.endDate);
     if (filters.search) params.append('search', filters.search);
+    if (filters.knownTotal !== undefined) params.append('knownTotal', filters.knownTotal.toString());
 
     return fetchAPI<RecordsResponse>(
       `/api/incidents/records?${params.toString()}`

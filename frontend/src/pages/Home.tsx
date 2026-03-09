@@ -3,41 +3,29 @@ import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/ca
 
 const menuItems = [
   {
-    to: '/overview',
+    to: '/yearly',
     icon: '📊',
-    title: 'Overview Statistics',
-    description: 'View total records, category distribution, and date ranges',
+    title: 'Yearly Comparison',
+    description: 'Compare crime statistics year by year',
   },
-  {
+    {
     to: '/map',
     icon: '🗺️',
     title: 'Crime Map',
     description: 'Interactive map showing crime incidents and district boundaries',
   },
   {
-    to: '/boundaries',
-    icon: '🌍',
-    title: 'Boundaries Map',
-    description: 'View district boundaries with street, satellite, and terrain layers',
+    to: '/overview',
+    icon: '📊',
+    title: 'Overview Statistics',
+    description: 'View various details about this dataset',
   },
   {
     to: '/records',
     icon: '📋',
-    title: 'Data Records',
+    title: 'All Data Records',
     description: 'Browse paginated crime records with filtering and search',
-  },
-  {
-    to: '/yearly',
-    icon: '📊',
-    title: 'Yearly Comparison',
-    description: 'Compare crime statistics year by year',
-  },
-  {
-    to: '/nibrs',
-    icon: '🔍',
-    title: 'NIBRS Filter',
-    description: 'Filter and analyze by specific NIBRS crime categories',
-  },
+  },  
 ];
 
 export function Home() {
@@ -45,15 +33,12 @@ export function Home() {
     <div className="flex flex-col gap-8">
       {/* Hero banner */}
       <header className="rounded-xl px-8 py-12 text-center text-white bg-gradient-to-br from-primary to-secondary">
-        <h1 className="text-4xl font-bold mb-3">Dallas Crime Data Analysis</h1>
-        <p className="text-lg opacity-90">Prestonwood District Crime Analysis System</p>
+        <h1 className="text-4xl font-bold mb-3">Prestonwood Improvement District</h1>
+        <p className="text-lg opacity-90">Crime data analysis comparing Prestonwood PID incidents to incidents in neighboring area</p>
       </header>
 
       {/* Card grid */}
-      <section>
-        <h2 className="text-2xl font-semibold text-center mb-6" style={{ color: 'var(--foreground)' }}>
-          Select a Visualization
-        </h2>
+      <section>        
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {menuItems.map((item) => (
             <Link key={item.to} to={item.to} className="group no-underline">
@@ -74,7 +59,7 @@ export function Home() {
       </section>
 
       <footer className="text-center py-4 text-sm border-t" style={{ color: 'var(--muted-foreground)', borderColor: 'var(--border)' }}>
-        <p>Data Source: Dallas Police Department</p>
+        <p>Data Source: <a href='https://www.dallasopendata.com/Public-Safety/Police-Incidents/qv6i-rri7/about_data'>Dallas Police Department</a></p>
       </footer>
     </div>
   );

@@ -18,7 +18,7 @@ export function OverviewPage() {
           <p className="text-sm mt-1" style={{ color: 'var(--muted-foreground)' }}>Summary of all crime data in the system</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {Array.from({ length: 7 }).map((_, i) => (
             <Card key={i}>
               <CardHeader><Skeleton className="h-4 w-32" /></CardHeader>
               <CardContent><Skeleton className="h-10 w-24 mx-auto" /></CardContent>
@@ -42,6 +42,10 @@ export function OverviewPage() {
     );
   }
 
+  // Estimated single-family home counts from Dallas Open Data parcel query (sptbcode LIKE 'A%')
+  const HOMES_INSIDE = 1025;
+  const HOMES_BORDERING = 1029;
+
   const pct = (n: number) =>
     overview ? ((n / overview.totalRecords) * 100).toFixed(2) + '%' : '';
 
@@ -56,18 +60,7 @@ export function OverviewPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
-              Total Records
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-4xl font-bold">{overview?.totalRecords.toLocaleString()}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
-              Inside District
+              Prestonwood PID Incidents
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center">
@@ -79,7 +72,19 @@ export function OverviewPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
-              Bordering District
+              Homes in Prestonwood PID
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-4xl font-bold">{HOMES_INSIDE.toLocaleString()}</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>estimated single-family</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+              Bordering District Incidents
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center">
@@ -91,12 +96,35 @@ export function OverviewPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
-              Outside District
+              Homes in Bordering District
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-4xl font-bold">{HOMES_BORDERING.toLocaleString()}</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>estimated single-family</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+              All Other Incidents
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-4xl font-bold">{overview?.categoryDistribution.outside.toLocaleString()}</p>
             <p className="text-sm mt-1" style={{ color: 'var(--accent)' }}>{pct(overview?.categoryDistribution.outside ?? 0)}</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+              Total Incidents
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-4xl font-bold">{overview?.totalRecords.toLocaleString()}</p>
           </CardContent>
         </Card>
 
@@ -111,17 +139,6 @@ export function OverviewPage() {
               {overview && new Date(overview.dateRange.earliest).getFullYear()} –{' '}
               {overview && new Date(overview.dateRange.latest).getFullYear()}
             </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
-              Crime Categories
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-4xl font-bold">{overview?.nibrsCategories}</p>
           </CardContent>
         </Card>
       </div>
