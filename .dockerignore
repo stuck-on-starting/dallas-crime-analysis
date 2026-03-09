@@ -1,0 +1,8 @@
+node_modules/
+dist/
+frontend/
+data/
+database/crime_analysis.db
+.env
+.git/
+*.log
