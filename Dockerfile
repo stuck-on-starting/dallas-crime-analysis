@@ -10,7 +10,7 @@ COPY package*.json ./
 RUN npm ci
 
 # Copy source and compile TypeScript
-COPY tsconfig.json ./
+COPY tsconfig.json tsconfig.build.json ./
 COPY src/ ./src/
 COPY database/schema.sql ./database/schema.sql
 RUN npx tsc -p tsconfig.build.json
